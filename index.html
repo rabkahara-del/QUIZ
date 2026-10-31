@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Seru: Bagian Tumbuhan & Fotosintesis</title>
+    <!-- Memanggil Tone.js untuk efek suara dan BGM -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Memanggil library Confetti untuk efek hujan kertas -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #81c784;
+            --background: #f1f8e9;
+            --text: #333333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Bubblegum Sans', Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 4px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* Tampilan Intro */
+        #intro-box {
+            display: block;
+            padding: 20px 0;
+        }
+
+        /* Tampilan Kuis */
+        #quiz-box {
+            display: none;
+            text-align: left;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #f9fbe7;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .option-item:hover {
+            background-color: #e8f5e9;
+            border-color: var(--primary);
+            transform: scale(1.01);
+        }
+
+        .option-item.correct {
+            background-color: #c8e6c9 !important;
+            border-color: #388e3c !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .option-item.wrong {
+            background-color: #ffcdd2 !important;
+            border-color: #d32f2f !important;
+            color: #b71c1c;
+        }
+
+        /* Tampilan Hasil */
+        #result-box {
+            display: none;
+            text-align: center;
+        }
+
+        #result-box h2 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        #result-box .custom-msg {
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 5px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #388e3c;
+            margin: 15px 0;
+            text-shadow: 2px 2px 0px #c8e6c9;
+        }
+
+        .feedback-msg {
+            font-size: 16px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .feedback-pujian {
+            background-color: #e8f5e9;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+        }
+
+        .feedback-nasihat {
+            background-color: #fff3e0;
+            border: 2px solid #ffb74d;
+            color: #e65100;
+        }
+
+        /* Tombol Global */
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+            transition: background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #1b5e20;
+        }
+
+        #next-btn { display: none; }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HALAMAN INTRO -->
+        <div id="intro-box">
+            <h1>🌱 Kuis Sains SD: Tumbuhan & Fotosintesis</h1>
+            <p class="subtitle">Mari kita tes seberapa paham kamu tentang materi ini!</p>
+            <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+                *Pastikan volume HP/Laptop kamu menyala ya, ada musik serunya loh!
+            </p>
+            <button class="btn-action" onclick="startQuiz()">Mulai Kuis 🚀</button>
+        </div>
+
+        <!-- HALAMAN KUIS -->
+        <div id="quiz-box">
+            <div class="question-number" id="question-number">Soal 1 dari 10</div>
+            <div class="question-text" id="question-text">Pertanyaan akan muncul di sini...</div>
+            <ul class="options-list" id="options-list">
+                <!-- Pilihan opsi akan dimuat lewat JavaScript -->
+            </ul>
+            <button class="btn-action" id="next-btn" onclick="nextQuestion()">Selanjutnya ➡️</button>
+        </div>
+
+        <!-- HALAMAN HASIL -->
+        <div id="result-box">
+            <h2>Horee, Kuis Selesai! 🎉</h2>
+            <p class="custom-msg">Yeayy kamu udah selesai menjawab semuanya, ini hasil jawaban kamu ya:</p>
+            <div class="score-display" id="final-score">0 / 10</div>
+            <div id="result-message" class="feedback-msg"></div>
+            <button class="btn-action" id="restart-btn" onclick="restartQuiz()">Coba Lagi 🔄</button>
+        </div>
+    </div>
+
+    <footer>
+        Dibuat untuk Belajar Interaktif Anak SD | Referensi: Bagian Tumbuhan & Fotosintesis
+    </footer>
+
+    <script>
+        // Data Soal
+        const quizData = [
+            { question: "Bagian tumbuhan yang berfungsi di dalam tanah untuk menyerap air dan zat hara adalah...", options: ["Daun", "Batang", "Akar", "Bunga"], answer: 2 },
+            { question: "Bagian tumbuhan manakah yang bertugas utama sebagai tempat terjadinya proses fotosintesis?", options: ["Bunga", "Daun", "Buah", "Akar"], answer: 1 },
+            { question: "Apa fungsi utama dari batang pada tumbuhan?", options: ["Menopang tumbuhan dan mengalirkan air", "Melindungi biji di dalam tumbuhan", "Menyerap cahaya matahari langsung secara penuh", "Sebagai alat perkembangbiakan utama"], answer: 0 },
+            { question: "Bagian tumbuhan yang berfungsi sebagai alat perkembangbiakan adalah...", options: ["Akar", "Batang", "Daun", "Bunga"], answer: 3 },
+            { question: "Apa fungsi utama dari buah pada tumbuhan berdasarkan gambar referensi?", options: ["Membuat makanan cadangan", "Melindungi biji", "Menyerap zat hara dari tanah", "Menghasilkan oksigen murni"], answer: 1 },
+            { question: "Apakah hasil utama dari proses fotosintesis yang berupa makanan bagi tumbuhan?", options: ["Gula (glukosa)", "Minyak tanah", "Garam dapur", "Air murni"], answer: 0 },
+            { question: "Selain makanan berupa gula, gas apakah yang dilepaskan tumbuhan ke udara sebagai hasil fotosintesis yang berguna bagi bernapas manusia?", options: ["Karbon dioksida (CO2)", "Oksigen (O2)", "Nitrogen (N2)", "Hidrogen (H2)"], answer: 1 },
+            { question: "Bunga matahari pada gambar memiliki bagian menarik berwarna kuning cerah. Bagian tersebut termasuk dalam kelompok organ tumbuhan apa?", options: ["Alat perkembangbiakan", "Alat pernapasan", "Alat pencernaan", "Alat gerak aktif"], answer: 0 },
+            { question: "Mengapa daun disebut sebagai tempat utama fotosintesis?", options: ["Karena bentuknya yang lebar dan indah", "Karena memiliki zat hijau daun yang menangkap cahaya matahari", "Karena letaknya paling dekat dengan tanah", "Karena tidak memerlukan air"], answer: 1 },
+            { question: "Jika akar menyerap air dan zat hara dari tanah, bagian tumbuhan mana yang mengalirkannya ke seluruh bagian atas tumbuhan?", options: ["Buah", "Bunga", "Batang", "Kelopak"], answer: 2 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // Variabel Audio Tone.js
+        let bgmSequence;
+        let isAudioSetup = false;
+        
+        // Simpan synth secara global agar tidak dibuat berulang kali
+        let bgmSynth, winSynth, clapSynth, sfxSynth;
+
+        // Inisialisasi DOM
+        const introBox = document.getElementById("intro-box");
+        const quizBox = document.getElementById("quiz-box");
+        const resultBox = document.getElementById("result-box");
+        
+        const questionNumberElement = document.getElementById("question-number");
+        const questionTextElement = document.getElementById("question-text");
+        const optionsListElement = document.getElementById("options-list");
+        const nextButton = document.getElementById("next-btn");
+        const finalScoreElement = document.getElementById("final-score");
+        const resultMessageElement = document.getElementById("result-message");
+
+        // FUNGSI AUDIO DENGAN TONE.JS
+        async function setupAudio() {
+            await Tone.start(); // Wajib untuk memulai audio context di browser
+            Tone.Transport.bpm.value = 110;
+
+            // Membuat synthesizer untuk Backsound (BGM)
+            bgmSynth = new Tone.Synth({
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.1, decay: 0.2, sustain: 0.4, release: 0.8 }
+            }).toDestination();
+            bgmSynth.volume.value = -15;
+
+            // Melodi BGM
+            bgmSequence = new Tone.Sequence((time, note) => {
+                bgmSynth.triggerAttackRelease(note, "8n", time);
+            }, ["C4", "E4", "G4", "A4", "G4", "E4", "D4", "G3"], "4n");
+
+            // Instrumen Suara Kemenangan
+            winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            winSynth.volume.value = -8;
+
+            // Instrumen Tepuk Tangan
+            clapSynth = new Tone.NoiseSynth({
+                noise: { type: "pink" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+            clapSynth.volume.value = -12;
+
+            // Instrumen Jawaban Benar/Salah (Menggunakan PolySynth agar aman dari bentrok waktu)
+            sfxSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            sfxSynth.volume.value = -10;
+            
+            isAudioSetup = true;
+        }
+
+        function playApplause() {
+            // Hentikan BGM
+            if (bgmSequence) bgmSequence.stop();
+            Tone.Transport.stop();
+
+            // Tambahkan sedikit offset (+0.1 detik) agar tidak error jadwal waktu Tone.js
+            const now = Tone.now() + 0.1;
+            
+            // 1. Suara Nada Kemenangan (Fanfare/Chime)
+            winSynth.releaseAll(now); // Bersihkan nada yang tertinggal dengan aman
+            winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+            winSynth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n", now + 0.3);
+
+            // 2. Simulasi Suara Tepuk Tangan (Jadwal waktu harus selalu maju berurutan)
+            let clapTime = now + 0.3;
+            for (let i = 0; i < 35; i++) {
+                clapTime += 0.05 + (Math.random() * 0.05); // Waktu dijamin terus bertambah
+                clapSynth.triggerAttackRelease("32n", clapTime);
+            }
+        }
+
+        function playCorrectSound() {
+            const now = Tone.now() + 0.05;
+            sfxSynth.triggerAttackRelease("C5", "16n", now);
+            sfxSynth.triggerAttackRelease("E5", "16n", now + 0.2); // Beri jarak 0.2 detik agar tidak bentrok
+        }
+
+        function playWrongSound() {
+            const now = Tone.now() + 0.05;
+            sfxSynth.triggerAttackRelease("D4", "8n", now);
+            sfxSynth.triggerAttackRelease("A3", "4n", now + 0.3); // Beri jarak 0.3 detik
+        }
+
+        // FUNGSI KUIS
+        async function startQuiz() {
+            if (!isAudioSetup) {
+                await setupAudio();
+            } else {
+                // Pastikan BGM direset dan dimulai ulang dengan benar tanpa refresh halaman
+                Tone.Transport.stop();
+                Tone.Transport.position = 0;
+            }
+            
+            // Mulai BGM
+            Tone.Transport.start();
+            if (bgmSequence) {
+                bgmSequence.stop();
+                bgmSequence.start(0);
+            }
+
+            introBox.style.display = "none";
+            quizBox.style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            nextButton.style.display = "none";
+            
+            const currentData = quizData[currentQuestionIndex];
+            questionNumberElement.innerText = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+            questionTextElement.innerText = currentData.question;
+            
+            optionsListElement.innerHTML = "";
+            currentData.options.forEach((option, index) => {
+                const li = document.createElement("li");
+                li.className = "option-item";
+                li.innerText = option;
+                li.onclick = () => selectOption(index, li);
+                optionsListElement.appendChild(li);
+            });
+        }
+
+        function selectOption(selectedIndex, element) {
+            if (answered) return;
+            answered = true;
+
+            const currentData = quizData[currentQuestionIndex];
+            const allOptions = optionsListElement.children;
+
+            if (selectedIndex === currentData.answer) {
+                element.classList.add("correct");
+                score++;
+                if(isAudioSetup) playCorrectSound();
+            } else {
+                element.classList.add("wrong");
+                allOptions[currentData.answer].classList.add("correct");
+                if(isAudioSetup) playWrongSound();
+            }
+
+            for (let opt of allOptions) {
+                opt.style.pointerEvents = "none";
+            }
+
+            nextButton.style.display = "block";
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizBox.style.display = "none";
+            resultBox.style.display = "block";
+            finalScoreElement.innerText = `${score} / ${quizData.length}`;
+
+            // Mainkan suara tepuk tangan dan nada kemenangan
+            if (isAudioSetup) {
+                playApplause();
+            }
+
+            // Memunculkan efek Konfeti meriah
+            fireConfetti();
+
+            // Kondisi Nasihat & Pujian
+            resultMessageElement.className = "feedback-msg"; // reset class
+            
+            if (score >= 8) {
+                // PUJIAN
+                resultMessageElement.classList.add("feedback-pujian");
+                resultMessageElement.innerHTML = "🌟 <strong>Luar Biasa!</strong><br>Wah, kamu sangat pintar dan sudah memahami materi tentang tumbuhan ini dengan sangat baik! Terus pertahankan prestasimu ya!";
+            } else {
+                // NASIHAT
+                resultMessageElement.classList.add("feedback-nasihat");
+                resultMessageElement.innerHTML = "💪 <strong>Tetap Semangat!</strong><br>Usahamu sudah bagus kok! Tapi jangan lupa untuk belajar lagi ya, baca-baca lagi tentang bagian tumbuhan. Kamu pasti bisa lebih baik di kuis selanjutnya!";
+            }
+        }
+
+        // Fungsi khusus untuk memunculkan hujan konfeti
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#2e7d32', '#81c784', '#ffeb3b']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#2e7d32', '#81c784', '#ffeb3b']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultBox.style.display = "none";
+            introBox.style.display = "block"; // Kembali ke layar intro agar bisa memicu audio lagi
+        }
+    </script>
+</body>
+</html>
